@@ -1,0 +1,7 @@
+ID,employeeCode,employeeDetails_name,employeeDetails_email,employeeDetails_phone,employeeDetails_address,department,designation,authorizationLimit
+7c1d6f4a-9f2f-4e5f-8b2a-123456789abc,EMP-101,Vishali,vishali@gmail.com,7639522800,Chennai,OperationTheatre,Perfusionist,
+2f4b8e91-3d77-4d3a-a8f5-23456789abcd,EMP-102,Pooja,Pooja@gmail.com,9876543456,Banglore,OperationTheatre,OTManager,
+5a7c2d10-8f6e-4c91-b2d1-3456789gvhus,EMP-106,Yogesh,yogesh@gmail.com,9876543223,Chennai,Procurement,ProcurementHead,
+5a7c2d10-8f6e-4c91-b2d1-3456789abcde,EMP-103,Tamil,Tamil@gmail.com,9876543223,Chennai,Finance,JuniorApprover,250000
+9d3f5a71-6c42-4b88-a4f3-456789abcdef,EMP-104,Sushmitha,Sushmitha@gmail.com,9876543223,Chennai,Finance,SeniorApprover,2500000
+c8e1b920-5a6d-4f11-b7a9-56789abcdef0,EMP-105,Uma,Uma@gmail.com,9876543223,Chennai,Finance,CEO,5000000

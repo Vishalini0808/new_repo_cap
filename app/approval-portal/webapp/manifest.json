@@ -1,0 +1,207 @@
+{
+ "_version": "1.84.0",
+ "sap.app": {
+  "id": "approvalportal",
+  "type": "application",
+  "i18n": "i18n/i18n.properties",
+  "applicationVersion": {
+   "version": "0.0.1"
+  },
+  "title": "{{appTitle}}",
+  "description": "{{appDescription}}",
+  "resources": "resources.json",
+  "sourceTemplate": {
+   "id": "@sap/generator-fiori:lrop",
+   "version": "1.24.0",
+   "toolsId": "04651682-bce9-4568-871a-07d1be8def0f"
+  },
+  "dataSources": {
+   "mainService": {
+    "uri": "/approve/",
+    "type": "OData",
+    "settings": {
+     "annotations": [],
+     "odataVersion": "4.01"
+    }
+   }
+  }
+ },
+ "sap.ui": {
+  "technology": "UI5",
+  "icons": {
+   "icon": "",
+   "favIcon": "",
+   "phone": "",
+   "phone@2": "",
+   "tablet": "",
+   "tablet@2": ""
+  },
+  "deviceTypes": {
+   "desktop": true,
+   "tablet": true,
+   "phone": true
+  }
+ },
+ "sap.ui5": {
+  "flexEnabled": true,
+  "dependencies": {
+   "minUI5Version": "1.148.0",
+   "libs": {
+    "sap.m": {},
+    "sap.ui.core": {},
+    "sap.fe.templates": {},
+    "sap.f": {}
+   }
+  },
+  "contentDensities": {
+   "compact": true,
+   "cozy": true
+  },
+  "models": {
+   "i18n": {
+    "type": "sap.ui.model.resource.ResourceModel",
+    "settings": {
+     "bundleName": "approvalportal.i18n.i18n"
+    }
+   },
+   "": {
+    "dataSource": "mainService",
+    "preload": true,
+    "settings": {
+     "operationMode": "Server",
+     "autoExpandSelect": true,
+     "earlyRequests": true
+    }
+   },
+   "@i18n": {
+    "type": "sap.ui.model.resource.ResourceModel",
+    "uri": "i18n/i18n.properties"
+   }
+  },
+  "resources": {
+   "css": []
+  },
+  "routing": {
+   "config": {
+    "routerClass": "sap.f.routing.Router",
+    "flexibleColumnLayout": {
+     "defaultTwoColumnLayoutType": "TwoColumnsBeginExpanded",
+     "defaultThreeColumnLayoutType": "ThreeColumnsMidExpanded"
+    }
+   },
+   "routes": [
+    {
+     "pattern": ":?query:",
+     "name": "PurchaseRequisitionsList",
+     "target": [
+      "PurchaseRequisitionsList"
+     ]
+    },
+    {
+     "pattern": "PurchaseRequisitions({key}):?query:",
+     "name": "PurchaseRequisitionsObjectPage",
+     "target": [
+      "PurchaseRequisitionsList",
+      "PurchaseRequisitionsObjectPage"
+     ]
+    },
+    {
+     "pattern": "PurchaseRequisitions({key})/po({key2}):?query:",
+     "name": "PurchaseOrdersObjectPage",
+     "target": [
+      "PurchaseRequisitionsList",
+      "PurchaseRequisitionsObjectPage",
+      "PurchaseOrdersObjectPage"
+     ]
+    }
+   ],
+   "targets": {
+    "PurchaseRequisitionsList": {
+     "type": "Component",
+     "id": "PurchaseRequisitionsList",
+     "name": "sap.fe.templates.ListReport",
+     "controlAggregation": "beginColumnPages",
+     "options": {
+      "settings": {
+       "contextPath": "/PurchaseRequisitions",
+       "variantManagement": "Page",
+       "navigation": {
+        "PurchaseRequisitions": {
+         "detail": {
+          "route": "PurchaseRequisitionsObjectPage"
+         }
+        }
+       },
+       "controlConfiguration": {
+        "@com.sap.vocabularies.UI.v1.LineItem": {
+         "tableSettings": {
+          "type": "ResponsiveTable"
+         }
+        }
+       },
+       "initialLoad": "Enabled",
+       "keyPerformanceIndicators": {
+        "KPI1": {
+         "entitySet": "PRStatuscount",
+         "qualifier": "PendingPRs"
+        },
+        "KPI2": {
+         "entitySet": "PRStatuscount",
+         "qualifier": "ApprovedPRs"
+        }
+       }
+      }
+     }
+    },
+    "PurchaseRequisitionsObjectPage": {
+     "type": "Component",
+     "id": "PurchaseRequisitionsObjectPage",
+     "name": "sap.fe.templates.ObjectPage",
+     "controlAggregation": "midColumnPages",
+     "options": {
+      "settings": {
+       "editableHeaderContent": false,
+       "contextPath": "/PurchaseRequisitions",
+       "navigation": {
+        "po": {
+         "detail": {
+          "route": "PurchaseOrdersObjectPage"
+         }
+        }
+       }
+      }
+     },
+     "contextPattern": "/PurchaseRequisitions({key})"
+    },
+    "PurchaseOrdersObjectPage": {
+     "type": "Component",
+     "id": "PurchaseOrdersObjectPage",
+     "name": "sap.fe.templates.ObjectPage",
+     "controlAggregation": "endColumnPages",
+     "options": {
+      "settings": {
+       "contextPath": "/PurchaseRequisitions/po",
+       "editableHeaderContent": false
+      }
+     },
+     "contextPattern": "/PurchaseRequisitions({key})/po({key2})"
+    }
+   }
+  },
+  "rootView": {
+   "viewName": "sap.fe.templates.RootContainer.view.Fcl",
+   "type": "XML",
+   "async": true,
+   "id": "appRootView"
+  }
+ },
+ "sap.fiori": {
+  "registrationIds": [],
+  "archeType": "transactional"
+ },
+ "sap.fe": {
+  "app": {
+   "enableLazyLoading": true
+  }
+ }
+}
