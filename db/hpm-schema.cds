@@ -63,6 +63,7 @@ type PRStatus : String enum {
     Cancelled;
     Approved;
     POCreated;
+    POApproved;
     Rejected
 }
 
@@ -72,7 +73,7 @@ type PRStatus : String enum {
         department :Association to Departments ;
         estimatedTotalCost : Decimal(15,2);
         pr_status : PRStatus     default 'Draft' @assert.range;
-        // rejectionReason : String(500);
+        rejectionReason : String(500);
         submittedAt : Timestamp;
         approvedBy : Association to Employees;
         approvedAt : Timestamp;
@@ -91,7 +92,6 @@ entity PRLineItems : cuid {
     estimatedTotalCost : Decimal(15,2);
     requiredByDate : Date;
 }
-
 
 entity Employees : cuid {
     employeeCode : String;
@@ -154,7 +154,6 @@ entity GoodsReceipts : cuid {
     grLineItems : Composition of many GRLineItems on grLineItems.gr = $self;
     
 }
-
 
 entity GRLineItems : cuid {
     gr : Association to GoodsReceipts;

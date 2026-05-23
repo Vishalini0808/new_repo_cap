@@ -5,28 +5,60 @@ annotate service.PurchaseRequisitions with @(
         Data : [
             {
                 $Type : 'UI.DataField',
-                Label : 'pr_code',
+                Label : 'Code',
                 Value : pr_code,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'estimatedTotalCost',
+                Label : 'Estimated TotalCost',
                 Value : estimatedTotalCost,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'pr_status',
+                Label : 'Pr Status',
                 Value : pr_status,
+                Criticality : pr_criticality,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'submittedAt',
+                Label : 'Submitted At',
                 Value : submittedAt,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'approvedAt',
+                Label : 'Approved At',
                 Value : approvedAt,
+            },
+        ],
+    },
+
+     UI.FieldGroup #prlineitemGroup : {
+        $Type : 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type : 'UI.DataField',
+                Label : 'Category',
+                Value : prlineItems.itemCategory,
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Item',
+                Value : prlineItems.itemDescription
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Unit Cost',
+                Value : prlineItems.estimatedUnitCost
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Requested Quantity',
+                Value : prlineItems.quantity
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Estimated Total Cost',
+                Value : prlineItems.estimatedTotalCost,
             },
         ],
     },
@@ -36,6 +68,12 @@ annotate service.PurchaseRequisitions with @(
             ID : 'GeneratedFacet1',
             Label : 'General Information',
             Target : '@UI.FieldGroup#GeneratedGroup',
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID : 'POFacet',
+            Label : 'Purchase Orders',
+            Target : 'po/@UI.LineItem',   
         },
          {
             $Type : 'UI.ReferenceFacet',
@@ -47,8 +85,15 @@ annotate service.PurchaseRequisitions with @(
     UI.LineItem : [
         {
             $Type : 'UI.DataField',
-            Label : 'pr_code',
+            Label : 'PR Code',
             Value : pr_code,
+            @HTML5.CssDefaults:{width:'150px'},
+            ![@UI.Importance] : #High
+        },
+        {
+            $Type : 'UI.DataField',
+            Label : 'Item ',
+            Value : prlineItems.itemDescription,
             @HTML5.CssDefaults:{width:'150px'},
             ![@UI.Importance] : #High
         },
@@ -61,14 +106,15 @@ annotate service.PurchaseRequisitions with @(
         },
         {
             $Type : 'UI.DataField',
-            Label : 'pr_status',
+            Label : 'PR Status',
             Value : pr_status,
+            Criticality : pr_criticality,
             @HTML5.CssDefaults:{width:'150px'},
             ![@UI.Importance] : #High
         },
         {
             $Type : 'UI.DataField',
-            Label : 'submittedAt',
+            Label : 'Submitted At',
             Value : submittedAt,
             @HTML5.CssDefaults:{width:'200px'},
             ![@UI.Importance] : #Low
@@ -76,7 +122,7 @@ annotate service.PurchaseRequisitions with @(
         },
         {
             $Type : 'UI.DataField',
-            Label : 'approvedAt',
+            Label : 'Approved At',
             Value : approvedAt,
             @HTML5.CssDefaults:{width:'200px'},
             ![@UI.Importance] : #Low
@@ -99,6 +145,7 @@ annotate service.PurchaseRequisitions with @(
             ![@UI.Importance] : #Medium
 
         },
+        
     ],
 );
 
@@ -273,36 +320,7 @@ annotate service.PurchaseRequisitions with {
     }
 };
 
-annotate service.PurchaseRequisitions with {
-    approvedBy @Common.ValueList : {
-        $Type : 'Common.ValueListType',
-        CollectionPath : 'Employees',
-        Parameters : [
-            {
-                $Type : 'Common.ValueListParameterInOut',
-                LocalDataProperty : approvedBy_ID,
-                ValueListProperty : 'ID',
-            },
-            {
-                $Type : 'Common.ValueListParameterDisplayOnly',
-                ValueListProperty : 'employeeCode',
-            },
-            {
-                $Type : 'Common.ValueListParameterDisplayOnly',
-                ValueListProperty : 'employeeDetails_name',
-            },
-            {
-                $Type : 'Common.ValueListParameterDisplayOnly',
-                ValueListProperty : 'employeeDetails_email',
-            },
-            {
-                $Type : 'Common.ValueListParameterDisplayOnly',
-                ValueListProperty : 'employeeDetails_phone',
-            },
-        ],
-    }
-};
-
+// KPI 
 annotate service.PRStatuscount with @(
     UI.KPI #PendingPRs : {
         $Type : 'UI.KPIType',
@@ -362,3 +380,105 @@ annotate service.PRStatuscount with @(
         }
     },
 );
+
+// vendor details
+annotate service.Vendors with @(
+
+      UI.LineItem : [
+        {
+            $Type : 'UI.DataField',
+            Label : 'Vendor Code',
+            Value : code,
+        },
+        {
+            $Type : 'UI.DataField',
+            Label : 'Vendor Name',
+            Value : vendorDetails_name,
+        },
+        {
+            $Type : 'UI.DataField',
+            Label : 'Category',
+            Value : category_code,
+        },
+        {
+            $Type : 'UI.DataField',
+            Label : 'Rating',
+            Value : rating,
+        },
+        {
+            $Type : 'UI.DataField',
+            Label : 'Status',
+            Value : V_status,
+        }
+    ],
+
+    UI.DataPoint #Rating : {
+        Value : rating,
+        Title : 'Vendor Rating',
+        TargetValue : 5,
+        Visualization : #Rating
+    },
+
+     UI.HeaderInfo : {
+        TypeName : 'Vendor',
+        TypeNamePlural : 'Vendors',
+        Title : {
+            Value : vendorDetails_name
+        },
+        Description : {
+            Value : category_code
+        }
+    },
+
+    UI.FieldGroup #VendorDetails : {
+        $Type : 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type : 'UI.DataField',
+                Label : 'Vendor Code',
+                Value : code,
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Vendor Name',
+                Value : vendorDetails_name,
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Email',
+                Value : vendorDetails_email,
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Vendor Category',
+                Value : category_code,
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Payment Terms',
+                Value : paymentTerms,
+            },
+            {
+                $Type : 'UI.DataFieldForAnnotation',
+                Target : '@UI.DataPoint#Rating',
+                Label  : 'Rating',
+            },
+            {
+                $Type : 'UI.DataField',
+                Label : 'Status',
+                Value : V_status,
+            },
+        ],
+    },
+
+    UI.Facets : [
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID : 'VendorDetailsFacet',
+            Label : 'Vendor Details',
+            Target : '@UI.FieldGroup#VendorDetails',
+        }
+    ]
+);
+
+

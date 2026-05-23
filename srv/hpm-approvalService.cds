@@ -31,11 +31,13 @@ service ApprovalService @(path : '/approve') {
 
     entity Employees as projection on hpm.Employees ;
 
+    entity Vendors as projection on hpm.Vendors;
+
     @readonly  
     entity PurchaseOrders as projection on hpm.PurchaseOrders
     where po_status = 'PendingApproval'
      actions {
-        action approvePO (  Employees_ID : UUID ) returns String;
+        action approvePO () returns String;
         action rejectPO (  reason : String ) returns String;
     }
 

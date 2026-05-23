@@ -1,6 +1,28 @@
 const cds = require ('@sap/cds');
 const { SELECT, INSERT, UPDATE } = require('@sap/cds/lib/ql/cds-ql');
 
+
+const CRITICALITY = {
+    PR : {
+        Draft   : 0,   
+        Submitted  : 5,  
+        Cancelled  : 1,   
+        Approved  : 3,  
+        POCreated  : 3,   
+        POApproved : 3,   
+        Rejected  : 1    
+    },
+
+    PO : {
+        PendingApproval   : 2,
+        PendingEscaltedApproval : 2,
+        Approved   : 3,
+        Rejected   : 1,
+        PartiallyReceived   : 2,
+        Received    : 3
+    }
+}
+
 module.exports = cds.service.impl ( async function () {
 
     const { Vendors, Employees, PurchaseRequisitions, PRLineItems, PurchaseOrders,POLineItems } = this.entities;
@@ -78,8 +100,24 @@ module.exports = cds.service.impl ( async function () {
     await UPDATE(PurchaseRequisitions).set({ estimatedTotalCost: total }).where({ ID: prID });
 
 });
+
+// -------------------------------------------------------------------------------------------------------------------------------
+
+// criticality mapping:
+
+this.after('READ',PurchaseRequisitions, async(results, req) => {
+    (Array.isArray(results) ? results : [results]).forEach(pr => {
+        pr.pr_criticality = CRITICALITY.PR[pr.pr_status] ?? 0
+    });
+})
+
+this.after('READ',PurchaseOrders, async(results, req) => {
+    (Array.isArray(results) ? results : [results]).forEach(po => {
+        po.po_criticality = CRITICALITY.PO[po.po_status] ?? 0
+    });
+})
    
-// ------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------------------------------------
 
    this.before('CREATE',Employees, async(req)=>{
 
@@ -214,12 +252,6 @@ module.exports = cds.service.impl ( async function () {
         const year = new Date().getFullYear()
         const num = Date.now().toString().slice(-6);
         const code = `PO-${year}-${num}`
-
-        // total
-        // let total = 0;
-        // for(const item of prLine){
-        //     total = total + Number (item.estimatedTotalCost)
-        // }
 
         // using reduce:
         const total = prLine.reduce((sum,item) => sum + Number(item.estimatedTotalCost),0);

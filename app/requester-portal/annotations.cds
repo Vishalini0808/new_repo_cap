@@ -3,6 +3,7 @@ annotate service.PurchaseRequisitions with @(
 
     UI.SelectionFields : [
         department_code,
+        pr_status
     ],
 
     UI.HeaderInfo : {
@@ -35,15 +36,22 @@ annotate service.PurchaseRequisitions with @(
             $Type : 'UI.DataField',
             Label : 'PR Code',
             Value : pr_code,
-            @HTML5.CssDefaults:{width:'150px'},
+            @HTML5.CssDefaults:{width:'160px'},
             ![@UI.Importance] : #High
 
         },
         {
             $Type : 'UI.DataField',
+            Label : 'Item',
+            Value : prlineItems.itemDescription,
+            @HTML5.CssDefaults:{width:'150px'},
+            ![@UI.Importance] : #High
+        },
+        {
+            $Type : 'UI.DataField',
             Label : 'Department',
             Value : department_code,
-            @HTML5.CssDefaults:{width:'150px'},
+            @HTML5.CssDefaults:{width:'160px'},
             ![@UI.Importance] : #High
         },
         {
@@ -58,13 +66,14 @@ annotate service.PurchaseRequisitions with @(
             $Type : 'UI.DataField',
             Label : 'PR Status',
             Value : pr_status,
+            Criticality : pr_criticality,
             @HTML5.CssDefaults:{width:'100px'},
             ![@UI.Importance] : #High
 
         },
         {
             $Type : 'UI.DataField',
-            Label : 'submittedAt',
+            Label : 'Submitted At',
             Value : submittedAt,
             ![@UI.Importance] : #Low
         },
@@ -112,6 +121,11 @@ annotate service.PurchaseRequisitions with @(
                 Value : pr_code,
             },
             {
+            $Type : 'UI.DataField',
+            Label : 'Item',
+            Value : prlineItems.itemDescription,
+            },
+            {
                 $Type : 'UI.DataField',
                 Label : 'Department',
                 Value : department_code,
@@ -125,15 +139,16 @@ annotate service.PurchaseRequisitions with @(
                 $Type : 'UI.DataField',
                 Label : 'PR Status',
                 Value : pr_status,
+                Criticality : pr_criticality,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'submittedAt',
+                Label : 'Submitted At',
                 Value : submittedAt,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'approvedAt',
+                Label : 'Approved At',
                 Value : approvedAt,
             },
         ],
@@ -155,7 +170,7 @@ annotate service.PurchaseRequisitions with @(
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'Employee Name',
+                Label : 'PR Raised By',
                 Value : requester.employeeDetails_name,
             },
             {
@@ -278,17 +293,21 @@ annotate service.PRLineItems with @(
             },
             ]
         },
+        
 
         Facets  : [
             {
                 $Type : 'UI.ReferenceFacet',
                 ID : 'GeneralField',
-                Label : 'Genaral Info',
+                Label : 'General Info',
                 Target : '@UI.FieldGroup#GeneralInfo',
             }
         ],
     }
 ) ;
+
+// employee facet for lineitem object page:
+
 
 
 // Button Availability
@@ -374,6 +393,27 @@ annotate service.PRLineItems with {
 
 };
 
+// dropdown
+
+annotate service.PurchaseRequisitions with {
+
+    pr_status @(
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList : {
+            CollectionPath : 'PurchaseRequisitions',
+            Parameters : [
+                {
+                    $Type : 'CommonValueListParameterInOut',
+                    ValueListProperty : 'pr_status',
+                     LocalDataProperty: pr_status
+                }
+            ]
+        }
+    )
+};
+
+
+// dropdown - in input
 annotate service.PurchaseRequisitions with actions {
      createPO (
         Vendors_ID @(
@@ -411,7 +451,12 @@ annotate service.PurchaseRequisitions with actions {
                 $Type : 'Common.ValueListType',
                 CollectionPath : 'Employees',
                 Parameters : [
-                     {
+                    {
+                        $Type : 'Common.ValueListParameterInOut',
+                        LocalDataProperty : Employees_ID,
+                        ValueListProperty : 'ID',
+                    }, 
+                    {
                         $Type : 'Common.ValueListParameterDisplayOnly',
                         ValueListProperty : 'employeeCode',
                     },
@@ -517,6 +562,7 @@ annotate service.PurchaseOrders with @(
             $Type : 'UI.DataField',
             Label : 'PO Status',
             Value : po_status,
+            Criticality : po_criticality,
             @HTML5.CssDefaults:{width:'150px'},
             ![@UI.Importance] : #High
         },
@@ -569,6 +615,7 @@ annotate service.PurchaseOrders with @(
             $Type : 'UI.DataField',
             Label : 'PO Status',
             Value : po_status,
+            Criticality : po_criticality,
         },
         {
             $Type : 'UI.DataField',

@@ -3,6 +3,7 @@ const cds = require ('@sap/cds');
 module.exports =  cds.service.impl(async function() {
 
     const { PurchaseRequisitions, Employees } = this.entities;
+
     
     // approve PR
     this.on('approvePR', PurchaseRequisitions, async(req) => {
@@ -82,50 +83,70 @@ this.on('rejectPR', PurchaseRequisitions, async (req) => {
 
  this.on('approvePO',async(req)=> {
 
-    const  {PurchaseOrders} = cds.entities('my.hpm')
+    const  { PurchaseOrders, Employees } = cds.entities('my.hpm')
+       
+        const PurchaseOrders_ID  = req.params[1].ID
+        // console.log(req.params)
 
-        const PurchaseOrders_ID = req.params[1].ID
-        console.log(req.params)
-        
-        console.log('PO ID extracted:', PurchaseOrders_ID)
-
-        const {  Employees_ID } = req.data;
+        // console.log('PO ID extracted:', PurchaseOrders_ID)
+        // const {  Employees_ID } = req.data;
 
         const po = await SELECT.one.from(PurchaseOrders).where({ ID : PurchaseOrders_ID });
         if(!po) {
             return req.error(400,"Purchase Order not found")
         }
 
-        const emp = await SELECT.one.from(Employees).where({ ID : Employees_ID });
-        if(!emp){
+        const employees = await SELECT.from(Employees).where({ department : 'Finance'}).orderBy( 'authorizationLimit');
+        if(!employees){
             return req.error(400,"Employee not found")
         }
+        console.log(employees);
+        // console.log(employees[0].authorizationLimit);
+        
+        
 
-        if(Number(emp.authorizationLimit) >= Number(po.totalValue)){
+        for ( const e of employees) {
+            if(Number(e.authorizationLimit) >= Number(po.totalValue)){
             await UPDATE(PurchaseOrders).set({
                 po_status : 'Approved',
-                approvedBy_ID : Employees_ID
+                approvedBy_ID : e.ID
             }).where({ ID : PurchaseOrders_ID });
 
-            req.notify("Purchase Order Approved")
+            break;
+        }
+        }
+         req.notify("Purchase Order Approved")
             return `PO Approved`
-        }
 
-        // if authlimit not enough -> next employee auth limit chech
-        const nextApprover = await SELECT.one.from(Employees).where({
-            authorizationLimit : { '>=' : Number(po.totalValue) }
-        }).orderBy({ authorizationLimit : 'asc'});
+        // if(Number(emp.authorizationLimit) >= Number(po.totalValue)){
+        //     await UPDATE(PurchaseOrders).set({
+        //         po_status : 'Approved',
+        //         approvedBy_ID : Employees_ID
+        //     }).where({ ID : PurchaseOrders_ID });
 
-        if(!nextApprover){
-            return req.error(400,"Cannot find next Approver with Auth Limit")
-        }
+        //     // await UPDATE(PurchaseRequisitions).set({
+        //     //     pr_status : 'POApproved'
+        //     // }).where({})
+
+        //     req.notify("Purchase Order Approved")
+        //     return `PO Approved`
+        // }
+
+        // // if authlimit not enough -> next employee auth limit chech
+        // const nextApprover = await SELECT.one.from(Employees).where({
+        //     authorizationLimit : { '>=' : Number(po.totalValue) }
+        // }).orderBy({ authorizationLimit : 'asc'});
+
+        // if(!nextApprover){
+        //     return req.error(400,"Cannot find next Approver with Auth Limit")
+        // }
         
-        // forwarded
-        await UPDATE(PurchaseOrders).set({
-            po_status  : 'PendingEscaltedApproval', approvedBy_ID : nextApprover.ID
-        }).where ({ ID : PurchaseOrders_ID});
+        // // forwarded
+        // await UPDATE(PurchaseOrders).set({
+        //     po_status  : 'PendingEscaltedApproval', approvedBy_ID : nextApprover.ID
+        // }).where ({ ID : PurchaseOrders_ID});
 
-        return `Forwarded PO to ${ nextApprover.name}- ${nextApprover.designation}`
+        // return `Forwarded PO to ${nextApprover.designation}`
     });
 
 // ----------------------------------------------------------------------------------------------------------
